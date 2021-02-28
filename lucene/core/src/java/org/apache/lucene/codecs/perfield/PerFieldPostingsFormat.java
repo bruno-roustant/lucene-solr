@@ -226,7 +226,7 @@ public abstract class PerFieldPostingsFormat extends PostingsFormat {
       for (String field : indexedFieldNames) {
         FieldInfo fieldInfo = writeState.fieldInfos.fieldInfo(field);
         // TODO: This should check current format from the field attribute?
-        final PostingsFormat format = getPostingsFormatForField(field);
+        final PostingsFormat format = getPostingsFormatForField(fieldInfo);
 
         if (format == null) {
           throw new IllegalStateException(
@@ -410,6 +410,17 @@ public abstract class PerFieldPostingsFormat extends PostingsFormat {
   @Override
   public final FieldsProducer fieldsProducer(SegmentReadState state) throws IOException {
     return new FieldsReader(state);
+  }
+
+  /**
+   * Returns the postings format that should be used for writing new segments of {@code fieldInfo}.
+   *
+   * <p>Expert: by default this method simply forwards to {@link #getPostingsFormatForField(String)}
+   * with {@code fieldInfo.name} but it is possible to override it to select the postings format
+   * based on e.g. {@link FieldInfo#getAttribute(String)}.
+   */
+  protected PostingsFormat getPostingsFormatForField(FieldInfo fieldInfo) {
+    return getPostingsFormatForField(fieldInfo.name);
   }
 
   /**

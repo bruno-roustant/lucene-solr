@@ -187,7 +187,7 @@ public abstract class PerFieldDocValuesFormat extends DocValuesFormat {
         }
       }
       if (format == null) {
-        format = getDocValuesFormatForField(field.name);
+        format = getDocValuesFormatForField(field);
       }
       if (format == null) {
         throw new IllegalStateException(
@@ -395,6 +395,19 @@ public abstract class PerFieldDocValuesFormat extends DocValuesFormat {
   @Override
   public final DocValuesProducer fieldsProducer(SegmentReadState state) throws IOException {
     return new FieldsReader(state);
+  }
+
+  /**
+   * Returns the doc values format that should be used for writing new segments of {@code
+   * fieldInfo}.
+   *
+   * <p>Expert: by default this method simply forwards to {@link
+   * #getDocValuesFormatForField(String)} with {@code fieldInfo.name} but it is possible to override
+   * it to select the doc values format based on e.g. {@link FieldInfo#getDocValuesType()} or {@link
+   * FieldInfo#getAttribute(String)}.
+   */
+  protected DocValuesFormat getDocValuesFormatForField(FieldInfo fieldInfo) {
+    return getDocValuesFormatForField(fieldInfo.name);
   }
 
   /**
